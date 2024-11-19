@@ -1,0 +1,9 @@
+.cache
+.lsp-session*
+auto-save-list
+bookmarks
+history
+projectile-bookmarks.eld
+snippets
+straight
+tree-sitter
