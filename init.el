@@ -34,7 +34,11 @@
 
   (inhibit-startup-message t)
 
+  ;; Use Tab for accepting auto-completion
   (tab-always-indent 'complete)
+
+  ;; Make sure emacs occupies all available space, and prevent gaps between emacs and other windows
+  (frame-resize-pixelwise t)
 
   ;; Disable auto-save
   (auto-save-default nil)
@@ -51,7 +55,9 @@
 
 (use-package avy
   :bind
-  ("C-;" . avy-goto-char-timer))
+  ("C-;" . avy-goto-char-timer)
+  ("C-'" . avy-next)
+  ("C-\"" . avy-prev))
 
 (use-package editorconfig
   :config
@@ -69,7 +75,8 @@
   ("C-S-<return>" . crux-smart-open-line-above)
   ("C-c d" . crux-duplicate-current-line-or-region)
   ("M-o" . crux-other-window-or-switch-buffer)
-  ("C-c i" . crux-find-user-init-file))
+  ("C-c i" . crux-find-user-init-file)
+  ("C-a" . crux-move-beginning-of-line))
 
 (use-package easy-kill
   :bind
@@ -78,6 +85,11 @@
 (use-package hl-todo
   :hook
   (prog-mode . hl-todo-mode))
+
+(use-package expand-region
+  :bind
+  ("C-=" . er/expand-region)
+  ("C-+" . er/contract-region))
 
 ;;
 ;; Theme
@@ -98,6 +110,8 @@
  ;; If there is more than one, they won't work right.
  )
 
+;; Nice modeline, going well together with doom-themes
+;; NOTE Make sure to install nerd icons with `nerd-icons-install-fonts'
 (use-package doom-modeline
   :config
   (doom-modeline-mode 1))
@@ -235,11 +249,11 @@
   (prog-mode . rainbow-delimiters-mode))
 
 ;; Smart parens
-(use-package smartparens
-  :hook
-  (prog-mode text-mode markdown-mode)
+(use-package puni
   :config
-  (require 'smartparens-config))
+  (puni-global-mode)
+  :hook
+  (term-mode . puni-disable-puni-mode))
 
 ;; Web
 (use-package web-mode
@@ -270,3 +284,48 @@
 (use-package vterm
   :bind
   ("C-c t" . vterm-other-window))
+
+;;
+;; Git
+;;
+(use-package magit
+  :bind
+  ("C-c g g" . magit))
+
+;;
+;; Org mode
+;;
+
+(use-package org
+  :custom
+  (org-hide-emphasis-markers t))
+
+(use-package org-bullets
+  :hook
+  (org-mode . (lambda () (org-bullets-mode 1))))
+
+(use-package org-roam
+  :custom
+  (org-roam-directory (file-truename "~/org-roam"))
+  (org-roam-completion-everywhere t)
+  :config
+  (unless (file-exists-p org-roam-directory)
+    (make-directory org-roam-directory))
+  (org-roam-db-autosync-mode)
+  :bind (("C-c o f" . org-roam-node-find)
+	 ("C-c o i" . org-roam-node-insert)
+	 ("C-c o t" . org-roam-dailies-goto-today)))
+
+(use-package consult-notes
+  :commands
+  (consult-notes consult-notes-search-in-all-notes)
+  :custom
+  (consult-notes-file-dir-sources '(("Org Roam" ?r "~/org-roam/")))
+  :bind
+  ("C-c s o" . consult-notes-search-in-all-notes)
+  ("C-c s n" . consult-notes)
+  :config
+  (consult-notes-org-roam-mode))
+
+(provide 'init)
+;;; init.el ends here
